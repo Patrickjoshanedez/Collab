@@ -94,5 +94,5 @@ input::-webkit-inner-spin-button {
 }
 
 .admin-selected {
-    border: 2px solid #dc3545;
+    border: 2px solid #dc3545; /* Red border for admin selection */
 }

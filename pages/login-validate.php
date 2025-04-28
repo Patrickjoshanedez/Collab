@@ -1,31 +1,41 @@
+
 <?php
+// login-validate.php: handles POST, authentication, and redirects
 session_start();
 require '../includes/db.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $identifier = $_POST['identifier']; // This will hold either the username or email
-    $password = $_POST['password'];
-    $loginType = $_POST['loginType']; // Get the selected login type (user or admin)
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_POST['identifier'], $_POST['password'], $_POST['role'])
+) {
+    $identifier = trim($_POST['identifier']);
+    $password   = $_POST['password'];
+    $role       = ($_POST['role'] === 'admin') ? 'Admin' : 'User';
 
-    // Check if the identifier matches either username or email in the database
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? OR email = ?");
-    $stmt->execute([$identifier, $identifier]);
-    $user = $stmt->fetch();
+    // Prepare and execute lookup
+    $stmt = $pdo->prepare("SELECT User_ID, username, password, Role FROM users WHERE (username = ? OR email = ?) AND Role = ?");
+    $stmt->execute([$identifier, $identifier, $role]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user && password_verify($password, $user['password'])) {
-        if ($loginType === 'admin' && $user['role'] !== 'admin') {
-            // If admin login is selected but the user is not an admin
-            $_SESSION['error'] = 'Access denied. Admins only.';
+        // Secure session cookie settings
+        session_regenerate_id(true);
+        $_SESSION['user_id'] = $user['User_ID'];
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['role'] = $user['Role'];
+
+        // Redirect based on role
+        if ($user['Role'] === 'Admin') {
+            header('Location: ../dashboard/admin.php');
         } else {
-            // Successful login
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['role'] = $user['role'];
-            header("Location: ../index.php"); // Redirect to the dashboard
-            exit();
+            header('Location: ../dashboard/index.html');
         }
-    } else {
-        // Invalid credentials
-        $_SESSION['error'] = 'Invalid username/email or password.';
+        exit;
     }
 }
+
+// If we reach here, authentication failed
+$_SESSION['error'] = 'Invalid username or password.';
+header('Location: login.php');
+exit;
 ?>

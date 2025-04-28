@@ -49,10 +49,6 @@ require_once 'signup-validate.php';
                         </div>
  
                         <div class="mb-3">
-                            <label for="name" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" id="name" name="name" required placeholder="Enter your full name">
-                        </div>
-                        <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
                             <input type="email" class="form-control" id="email" name="email" required placeholder="Enter your email">
                         </div>
@@ -77,6 +73,9 @@ require_once 'signup-validate.php';
                             <label class="form-check-label" for="terms"><a href="">I agree to the Terms & Conditions</a></label>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+                        <div class="text-center mt-4">
+                                <a href="login.php" class="text-decoration-none">Login</a>
+                            </div>
                     </form>
                 </div>
             </div>

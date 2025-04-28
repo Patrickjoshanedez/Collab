@@ -42,8 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
                 // Insert the new user into the database
-                $sql = "INSERT INTO Users (Username, Name, Contact_no, Address, Purchase_History, Role, Email, Password, reset_token)
-                        VALUES (:username, :name, :contact_no, :address, :purchase_history, :role, :email, :password, :reset_token)";
+                $sql = "INSERT INTO Users (Username, Name, Contact_no, Address, Purchase_History, Role, Email, Password)
+                        VALUES (:username, :name, :contact_no, :address, :purchase_history, :role, :email, :password)";
                 $stmt = $pdo->prepare($sql);
 
                 // Prepare parameters for the query
@@ -56,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'role'             => 'User', // Default role is 'User'
                     'email'            => $email,
                     'password'         => $hashedPassword,
-                    'reset_token'      => null // Default null value for reset_token
                 ];
 
                 if ($stmt->execute($params)) {
