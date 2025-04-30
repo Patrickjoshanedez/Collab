@@ -16,3 +16,28 @@ $(document).ready(function() {
         });
     });
 });
+
+
+$(function(){
+    $(".category-checkbox").change(function(){
+      // Collect all checked category values
+      var selected = $(".category-checkbox:checked").map(function(){ 
+        return $(this).val(); 
+      }).get();
+      // If no filter is checked, show all products
+      if (selected.length === 0) {
+        $(".product-card").show();
+        return;
+      }
+      // Otherwise, show only cards whose data-category is in the selected list
+      $(".product-card").each(function(){
+        var cat = $(this).data("category");
+        if (selected.includes(cat)) {
+          $(this).show();
+        } else {
+          $(this).hide();
+        }
+      });
+    });
+  });
+
