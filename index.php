@@ -1,3 +1,10 @@
+<?php
+include 'includes/db.php'; // Include your database connection file
+
+// Fetch the latest products (limit to 3 for the "Latest Arrivals" section)
+$stmt = $pdo->query("SELECT name, price, image FROM products ORDER BY id DESC LIMIT 3");
+$latestProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,14 +50,19 @@
 
   <!-- Hero 2 / Latest Arrivals -->
   <section>
-    <h1>Our latest arrivals</h1>
+    <h1>Our Latest Arrivals</h1>
     <p class="subtitle">Preloved items at your disposal</p>
     <button>Shop All</button>
     <div class="grid-3">
-      <!-- Cards scroll-reveal -->
-      <div class="card"><img src="images/hero1.png"><div class="card-content"><h2>Bikes</h2><p>₱1,200</p></div></div>
-      <div class="card"><img src="images/hero2.png"><div class="card-content"><h2>Cabinets</h2><p>₱850</p></div></div>
-      <div class="card"><img src="images/hero3.png"><div class="card-content"><h2>Pottery</h2><p>₱2,300</p></div></div>
+      <?php foreach ($latestProducts as $product): ?>
+        <div class="card">
+          <img src="assets/images/<?= htmlspecialchars($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>">
+          <div class="card-content">
+            <h2><?= htmlspecialchars($product['name']) ?></h2>
+            <p>₱<?= number_format($product['price'], 2) ?></p>
+          </div>
+        </div>
+      <?php endforeach; ?>
     </div>
   </section>
 

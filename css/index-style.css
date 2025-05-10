@@ -76,30 +76,55 @@ p.subtitle { color: var(--muted); margin-bottom: 1.5rem; }
 /*============= Grid & Cards =============*/
 .grid-3 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
 }
+/* Card container */
 .card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-md);
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
   overflow: hidden;
-  transform: translateY(20px);
-  opacity: 0;
-  transition: all .6s ease; /* scroll-reveal :contentReference[oaicite:6]{index=6} */
-  margin-top: 40px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.card.visible {
-  transform: none;
-  opacity: 1;
+
+/* Hover effect for cards */
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
+
+/* Card image */
 .card img {
   width: 100%;
-  height: 180px;
+  height: 200px;
   object-fit: cover;
+  transition: transform 0.3s ease;
 }
+
+/* Hover effect for image */
+.card:hover img {
+  transform: scale(1.1);
+}
+
+/* Card content */
 .card-content {
   padding: 1rem;
+  text-align: center;
+}
+
+/* Card title */
+.card-content h2 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+/* Card price */
+.card-content p {
+  font-size: 1rem;
+  color: #555;
 }
 
 /*============= Footer =============*/

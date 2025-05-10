@@ -1,7 +1,26 @@
 <?php
+session_start();
 include '../../includes/db.php';
+
+// Redirect to login if not authenticated
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
+
+$userId = $_SESSION['user_id'];
+
+// Fetch the profile picture for the logged-in user
+$stmt = $pdo->prepare("SELECT profile_pic FROM users WHERE User_ID = ?");
+$stmt->execute([$userId]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Store the profile picture in the session
+$_SESSION['profile_pic'] = $user['profile_pic'] ?? 'default.png';
+
 // Load all products for client-side filtering
 $products = $pdo->query("SELECT * FROM products ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 <!DOCTYPE html>
 <html lang="en" class="dark">
@@ -15,7 +34,20 @@ $products = $pdo->query("SELECT * FROM products ORDER BY id DESC")->fetchAll(PDO
 <body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
   <!-- Header -->
   <header class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 shadow">
-    <h1 class="text-2xl font-bold">SurePlus+</h1>
+    <!-- Left Section: Welcome Message and Profile Picture -->
+    <div class="flex items-center space-x-4">
+      <a href="/Collab/dashboard/user/user-profile.php" class="relative group">
+        <img src="/Collab/dashboard/user/<?= htmlspecialchars($_SESSION['profile_pic'] ?? 'uploads/default.png') ?>" 
+             alt="Profile Picture" 
+             class="h-10 w-10 rounded-full object-cover transition-transform duration-300 group-hover:scale-110">
+        <span class="absolute inset-0 rounded-full bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+      </a>
+      <span class="text-lg font-medium text-gray-900 dark:text-gray-100">
+        Welcome, <?= htmlspecialchars($_SESSION['username'] ?? 'Guest') ?>
+      </span>
+    </div>
+
+    <!-- Right Section: Navigation Links -->
     <nav class="flex space-x-6">
       <a href="#" class="hover:underline">Shop</a>
       <a href="#" class="hover:underline">Stories</a>
