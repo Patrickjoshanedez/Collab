@@ -53,6 +53,18 @@ if (isset($_POST['add_product']) || isset($_POST['edit_product'])) {
              VALUES (?, ?, ?, ?, ?)"
         );
         $stmt->execute([$name, $price, $imageName, $description, $category]);
+
+        // After admin adds a product
+        $msg = "New item '" . htmlspecialchars($name, ENT_QUOTES) . "' was added by " . htmlspecialchars($_SESSION['username'], ENT_QUOTES);
+        $admins = $pdo->query("SELECT User_ID FROM users WHERE Role = 'Admin'");
+        foreach ($admins as $row) {
+            $stmt = $pdo->prepare("INSERT INTO notifications (user_id, message, admin_only) VALUES (?, ?, 1)");
+            if ($stmt->execute([$row['User_ID'], $msg])) {
+                echo "Notification sent to Admin ID: " . $row['User_ID'] . "<br>";
+            } else {
+                echo "Failed to send notification to Admin ID: " . $row['User_ID'] . "<br>";
+            }
+        }
     } else {
         // edit
         $id   = $_POST['product_id'];

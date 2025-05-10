@@ -20,9 +20,7 @@ if (!isset($_SESSION['user_id'])) {
 $userId = $_SESSION['user_id'];
 
 // Handle form submission
-if (
-    $_SERVER['REQUEST_METHOD'] === 'POST'
-) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
     $birthdate = $_POST['birthdate'] ?: null;
     $contact_no = trim($_POST['Contact_no']);
@@ -30,42 +28,25 @@ if (
 
     // Profile pic upload
     $profilePicPath = null;
-    if (!empty($_FILES['profile_pic']['name']) && 
-        $_FILES['profile_pic']['error'] === UPLOAD_ERR_OK
-    ) {
+    if (!empty($_FILES['profile_pic']['name']) && $_FILES['profile_pic']['error'] === UPLOAD_ERR_OK) {
         $uploadDir = 'uploads/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
         $ext = strtolower(pathinfo($_FILES['profile_pic']['name'], PATHINFO_EXTENSION));
-        $allowed = ['jpg','jpeg','png','gif'];
+        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
         if (in_array($ext, $allowed)) {
-            $newName = uniqid('prof_'.$userId.'_') . '.' . $ext;
+            $newName = uniqid('prof_' . $userId . '_') . '.' . $ext;
             $targetPath = $uploadDir . $newName;
-            if (move_uploaded_file(
-                    $_FILES['profile_pic']['tmp_name'],
-                    $targetPath
-                )) {
+            if (move_uploaded_file($_FILES['profile_pic']['tmp_name'], $targetPath)) {
                 $profilePicPath = $targetPath;
             }
         }
     }
 
     // Build UPDATE query
-    $fields = [];
-    $params = [];
-
-    $fields[] = 'Name = ?';
-    $params[] = $name;
-
-    $fields[] = 'birthdate = ?';
-    $params[] = $birthdate;
-
-    $fields[] = 'Contact_no = ?';
-    $params[] = $contact_no;
-
-    $fields[] = 'Address = ?';
-    $params[] = trim($_POST['Address']);
+    $fields = ['Name = ?', 'birthdate = ?', 'Contact_no = ?', 'Address = ?'];
+    $params = [$name, $birthdate, $contact_no, $address];
 
     if ($profilePicPath) {
         $fields[] = 'profile_pic = ?';
@@ -80,20 +61,27 @@ if (
         $stmt->execute($params);
 
         if ($stmt->rowCount() > 0) {
-            echo "Profile updated successfully!";
+            // Insert a notification into the notifications table
+            $notificationMessage = "Your profile has been updated successfully.";
+            $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, message, is_read, created_at) VALUES (?, ?, 0, NOW())");
+            $notifStmt->execute([$userId, $notificationMessage]);
+
+            // Redirect back to the profile page with a success message
+            header('Location: user-profile.php?updated=true');
+            exit;
         } else {
-            echo "No changes were made to the profile.";
+            // Redirect back with no changes message
+            header('Location: user-profile.php?updated=false');
+            exit;
         }
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
+        exit;
     }
-    exit;
 }
 
 // Fetch user data for display
-$stmt = $pdo->prepare(
-    'SELECT Name, Contact_no, birthdate, profile_pic, Address FROM users WHERE User_ID = ?'
-);
+$stmt = $pdo->prepare('SELECT Name, Contact_no, birthdate, profile_pic, Address FROM users WHERE User_ID = ?');
 $stmt->execute([$userId]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -113,7 +101,7 @@ if (!empty($user['birthdate'])) {
       <nav class="mt-4">
         <ul class="space-y-2">
           <li><a href="user-dashboard.php" class="block px-4 py-2 hover:bg-gray-700">Dashboard</a></li>
-          <li><a href="profile.php" class="block px-4 py-2 bg-gray-700">Profile</a></li>
+          <li><a href="user-profile.php" class="block px-4 py-2 bg-gray-700">Profile</a></li>
           <?php if ($_SESSION['role'] === 'Admin'): ?>
             <li><a href="../../dashboard/admin/admin-dashboard.php" class="block px-4 py-2 hover:bg-gray-700">Admin Dashboard</a></li>
           <?php endif; ?>
@@ -136,7 +124,7 @@ if (!empty($user['birthdate'])) {
       <!-- Profile Form -->
       <main class="flex-1 p-6 overflow-auto">
         <div class="bg-white max-w-4xl mx-auto rounded-xl shadow-lg p-8">
-          <?php if (isset($_GET['updated'])): ?>
+          <?php if (isset($_GET['updated']) && $_GET['updated'] === 'true'): ?>
             <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
               <p>Profile updated successfully!</p>
               <button onclick="this.parentElement.style.display='none'" class="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Okay</button>
