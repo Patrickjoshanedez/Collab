@@ -1,5 +1,6 @@
 <?php
 include __DIR__ . '/../../includes/db.php';
+include 'admin-dashboard-validate.php';
 
 // Ensure `category` column exists:
 // ALTER TABLE products ADD category VARCHAR(50) DEFAULT '';
@@ -102,7 +103,12 @@ $products = $pdo->query("SELECT * FROM products ORDER BY id DESC")->fetchAll(PDO
   <!-- Header -->
   <header class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 shadow">
     <h1 class="text-2xl font-bold">SurePlus+ Admin</h1>
-    <button onclick="toggleDarkMode()">🌓</button>
+    <div class="flex items-center space-x-4">
+      <button onclick="toggleDarkMode()">🌓</button>
+      <a href="../user/user-dashboard.php" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        Go to User Dashboard
+      </a>
+    </div>
   </header>
 
   <main class="p-6 flex flex-col md:flex-row gap-6">
@@ -189,7 +195,7 @@ $products = $pdo->query("SELECT * FROM products ORDER BY id DESC")->fetchAll(PDO
               <?php endif; ?>
             </td>
             <td class="px-3 py-2"><?= htmlspecialchars($p['name']) ?></td>
-            <td class="px-3 py-2">$<?= number_format($p['price'],2) ?></td>
+            <td class="px-3 py-2">₱<?= number_format($p['price'],2) ?></td>
             <td class="px-3 py-2"><?= htmlspecialchars($p['category']) ?></td>
             <td class="px-3 py-2 space-x-2">
               <a href="?edit=<?= $p['id'] ?>" class="text-indigo-600">Edit</a>

@@ -114,6 +114,9 @@ if (!empty($user['birthdate'])) {
         <ul class="space-y-2">
           <li><a href="user-dashboard.php" class="block px-4 py-2 hover:bg-gray-700">Dashboard</a></li>
           <li><a href="profile.php" class="block px-4 py-2 bg-gray-700">Profile</a></li>
+          <?php if ($_SESSION['role'] === 'Admin'): ?>
+            <li><a href="../../dashboard/admin/admin-dashboard.php" class="block px-4 py-2 hover:bg-gray-700">Admin Dashboard</a></li>
+          <?php endif; ?>
           <li>
             <button onclick="showLogoutModal()" class="block w-full text-left px-4 py-2 hover:bg-gray-700">
               Logout
@@ -134,7 +137,10 @@ if (!empty($user['birthdate'])) {
       <main class="flex-1 p-6 overflow-auto">
         <div class="bg-white max-w-4xl mx-auto rounded-xl shadow-lg p-8">
           <?php if (isset($_GET['updated'])): ?>
-            <p class="mb-4 text-green-600">Profile updated successfully!</p>
+            <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+              <p>Profile updated successfully!</p>
+              <button onclick="this.parentElement.style.display='none'" class="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Okay</button>
+            </div>
           <?php endif; ?>
           <h1 class="text-2xl font-bold mb-6">Edit Profile</h1>
           <form method="POST" enctype="multipart/form-data">
@@ -242,7 +248,7 @@ if (!empty($user['birthdate'])) {
 
     // Confirm logout
     function confirmLogout() {
-      window.location.href = '../../index.php';
+      window.location.href = 'logout.php';
     }
 
   </script>

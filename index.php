@@ -19,6 +19,12 @@ $latestProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
 
+  <?php
+  if (isset($_GET['message']) && $_GET['message'] === 'login_required') {
+      echo '<p style="color: red; text-align: center; font-size: 1.2rem; margin-top: 1rem; font-weight: bold;">You need to login first to access this page.</p>';
+  }
+  ?>
+
   <!-- Sticky Header -->
   <header id="header">
     <div class="nav-container">
@@ -41,7 +47,7 @@ $latestProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <section>
     <h1>Preloved items for all</h1>
     <p class="subtitle">Sa SurePlus+ sure na mam manage mo ang iyong stocks</p>
-    <button>Shop All</button>
+    <button onclick="window.location.href='pages/login.php?message=login_required'">Shop All</button>
     <div style="margin-top:2rem;">
       <!-- Exact filename & no hidden class -->
       <img src="images/banner.jpeg" alt="Banner" class="hero-img">

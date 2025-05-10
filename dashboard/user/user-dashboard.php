@@ -85,7 +85,7 @@ $products = $pdo->query("SELECT * FROM products ORDER BY id DESC")->fetchAll(PDO
             <img src="/Collab/assets/images/<?= htmlspecialchars($row['image']) ?>"
                  class="h-24 object-contain mb-2" alt="">
             <span class="font-semibold"><?= htmlspecialchars($row['name']) ?></span>
-            <span class="mt-1">$<?= number_format($row['price'],2) ?></span>
+            <span class="mt-1">₱<?= number_format($row['price'],2) ?></span>
           </div>
         <?php endforeach; ?>
       </div>

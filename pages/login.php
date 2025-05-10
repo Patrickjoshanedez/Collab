@@ -1,6 +1,24 @@
 <?php
-// login.php: displays form and error messages only
 session_start();
+
+// Check if the user is already logged in via session or cookies
+if (isset($_SESSION['user_id']) || (isset($_COOKIE['user_id']) && isset($_COOKIE['role']))) {
+    // Restore session from cookies if necessary
+    if (!isset($_SESSION['user_id'])) {
+        $_SESSION['user_id'] = $_COOKIE['user_id'];
+        $_SESSION['username'] = $_COOKIE['username'];
+        $_SESSION['role'] = $_COOKIE['role'];
+    }
+
+    // Redirect based on role
+    if ($_SESSION['role'] === 'admin') {
+        header('Location: ../dashboard/admin/admin-dashboard.php');
+    } else {
+        header('Location: ../dashboard/user/user-dashboard.php');
+    }
+    exit;
+}
+
 // Retrieve and clear any error message set by login-validate.php
 $error = $_SESSION['error'] ?? null;
 unset($_SESSION['error']);
@@ -13,6 +31,7 @@ unset($_SESSION['error']);
     <title>Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="../styles/style.css" rel="stylesheet">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
     <div class="container mt-5" style="max-width: 400px;">
@@ -53,6 +72,9 @@ unset($_SESSION['error']);
                         <label class="form-check-label" for="remember">Remember me</label>
                     </div>
 
+                    <div class="mb-3">
+                        <div class="g-recaptcha" data-sitekey="6LfSCjUrAAAAAN6-MpRpTbijCWGdNURTZUkgGzTn"></div>
+                    </div>
                     <button type="submit" class="btn btn-primary w-100">Sign In</button>
 
                     <div class="text-center mt-3">

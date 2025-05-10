@@ -7,8 +7,8 @@ require '../includes/db.php';
 
 // Check if the request method is POST and required fields are set
 if (
-    $_SERVER['REQUEST_METHOD'] === 'POST' // Ensure the form was submitted via POST
-    && isset($_POST['identifier'], $_POST['password'], $_POST['role']) // Check if identifier, password, and role are provided
+    $_SERVER['REQUEST_METHOD'] === 'POST' && // Ensure the form was submitted via POST
+    isset($_POST['identifier'], $_POST['password'], $_POST['role']) // Check if identifier, password, and role are provided
 ) {
     // Trim whitespace from the identifier (username or email)
     $identifier = trim($_POST['identifier']);
