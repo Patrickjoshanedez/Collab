@@ -92,6 +92,16 @@ if (!empty($user['birthdate'])) {
     $ref = new DateTime('2025-07-05');
     $age = $dob->diff($ref)->y;
 }
+
+// Fetch wishlist items
+$stmt = $pdo->prepare("
+    SELECT p.name, p.id 
+    FROM wishlists w 
+    JOIN products p ON w.product_id = p.id 
+    WHERE w.user_id = ?
+");
+$stmt->execute([$userId]);
+$wishlistItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
   <div class="flex h-screen">
@@ -112,6 +122,23 @@ if (!empty($user['birthdate'])) {
           </li>
         </ul>
       </nav>
+
+      <!-- Wishlist Section -->
+      <div class="mt-6 px-4">
+        <h3 class="text-lg font-semibold mb-2">Your Wishlist</h3>
+        <ul id="wishlistSidebar" class="space-y-2">
+          <?php if (empty($wishlistItems)): ?>
+            <li class="text-gray-400">No items in your wishlist.</li>
+          <?php else: ?>
+            <?php foreach ($wishlistItems as $item): ?>
+              <li class="flex justify-between items-center">
+                <span><?= htmlspecialchars($item['name']) ?></span>
+                <a href="product_detail.php?id=<?= $item['id'] ?>" class="text-blue-500 text-sm">View</a>
+              </li>
+            <?php endforeach; ?>
+          <?php endif; ?>
+        </ul>
+      </div>
     </aside>
 
     <!-- Main content -->

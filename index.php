@@ -34,7 +34,7 @@ $latestProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <a href="pages/login.php">Login</a>
         <a href="#">About</a>
         <a href="#"><svg style="width:1rem;vertical-align:middle"><!--icon--></svg></a>
-        <!-- Dark Mode Toggle (CodePen pattern) :contentReference[oaicite:8]{index=8} -->
+        <!-- Dark Mode Toggle -->
         <label>
           <input type="checkbox" id="theme-toggle" hidden>
           <span style="cursor:pointer;">🌓</span>
@@ -133,38 +133,9 @@ $latestProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
       });
     }, { threshold: 0.1 });
     cards.forEach(card => obs.observe(card));
-
-    // Dark-mode toggle :contentReference[oaicite:11]{index=11}
-    const themeToggle = document.getElementById('theme-toggle');
-    themeToggle.addEventListener('change', () => {
-      document.documentElement.classList.toggle('dark', themeToggle.checked);
-    });
   </script>
 
-  <script>
-    // Check localStorage for the saved theme preference
-    const savedTheme = localStorage.getItem('theme');
-    const toggle = document.getElementById('theme-toggle');
-
-    // Apply the saved theme preference on page load
-    if (savedTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-      toggle.checked = true; // Set the toggle to match the saved preference
-    } else if (savedTheme === 'light') {
-      document.documentElement.classList.remove('dark');
-      toggle.checked = false; // Ensure the toggle is unchecked for light mode
-    }
-
-    // Add event listener to save the theme preference
-    toggle.addEventListener('change', () => {
-      if (toggle.checked) {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('theme', 'dark'); // Save preference as 'dark'
-      } else {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('theme', 'light'); // Save preference as 'light'
-      }
-    });
-  </script>
+  <!-- Include the external dark mode script -->
+  <script src="js/dark-mode.js"></script>
 </body>
 </html>
