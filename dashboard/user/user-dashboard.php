@@ -97,14 +97,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
       </div>
       <div class="relative ml-4">
-        <button id="wishlistBtn" class="relative px-3">
+        <button id="wishlistIcon" class="relative px-3">
           ♥
           <span id="wishlistCount" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">0</span>
         </button>
         <div id="wishlistDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded shadow-lg overflow-hidden">
-          <ul>
-            <!-- Filled by JS -->
-          </ul>
+          <!-- Wishlist items will be dynamically injected here -->
+          <ul id="wishlistItems"></ul>
           <div class="p-2 text-center">
             <a href="user-wishlist.php" class="text-indigo-600">Manage Wishlist &raquo;</a>
           </div>
@@ -280,7 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           html += `
             <li class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 flex justify-between">
               <span>${item.name}</span>
-              <a href="user-wishlist.php" class="text-blue-500 text-sm">Edit</a>
+              <a href="user-profile.php" class="text-blue-500 text-sm">Edit</a>
             </li>`;
         });
         $('#wishlistDropdown ul').html(html);
@@ -331,6 +330,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }).fail(function (xhr) {
           console.error('Failed to fetch wishlist items:', xhr.responseText); // Debugging
         });
+      }
+    });
+
+    document.getElementById('wishlistIcon').addEventListener('click', function () {
+      const dropdown = document.getElementById('wishlistDropdown');
+      const wishlistItems = document.getElementById('wishlistItems');
+
+      // Toggle visibility (add/remove 'hidden' class)
+      dropdown.classList.toggle('hidden');
+
+      // If now visible, fetch wishlist data
+      if (!dropdown.classList.contains('hidden')) {
+        fetch('fetch_wishlist.php')
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to fetch wishlist data');
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (Array.isArray(data.items) && data.items.length > 0) {
+              // Populate dropdown with wishlist items
+              wishlistItems.innerHTML = data.items.map(item =>
+                `<li class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 flex justify-between">
+                  <span>${item.name}</span>
+                  <a href="user-wishlist.php" class="text-blue-500 text-sm">Edit</a>
+                </li>`
+              ).join('');
+            } else {
+              // Fallback if empty
+              wishlistItems.innerHTML = '<p class="p-2 text-gray-500">Your wishlist is empty.</p>';
+            }
+            // Update wishlist count
+            document.getElementById('wishlistCount').textContent = data.count || 0;
+          })
+          .catch(err => {
+            console.error('Error fetching wishlist:', err);
+            wishlistItems.innerHTML = '<p class="p-2 text-red-500">Failed to load wishlist.</p>';
+          });
+      }
+    });
+
+    // Close the dropdown when clicking outside
+    document.addEventListener('click', function (event) {
+      const dropdown = document.getElementById('wishlistDropdown');
+      const wishlistIcon = document.getElementById('wishlistIcon');
+      if (!dropdown.contains(event.target) && !wishlistIcon.contains(event.target)) {
+        dropdown.classList.add('hidden');
       }
     });
   </script>

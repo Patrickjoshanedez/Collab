@@ -5,8 +5,8 @@ $product_id = intval($_GET['product_id'] ?? 0);
 
 $stmt = $pdo->prepare("
     SELECT r.rating, r.review_text, r.review_date, u.Name AS username
-    FROM reviews r 
-    JOIN users u ON u.User_ID = r.user_id
+    FROM reviews r
+    JOIN users u ON r.user_id = u.User_ID
     WHERE r.product_id = ?
     ORDER BY r.review_date DESC
 ");

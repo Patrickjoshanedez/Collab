@@ -3,7 +3,6 @@ session_start();
 
 // Check if the user is logged in and is an admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Admin') {
-    // Display a warning message and redirect
     echo "<script>
         alert('You do not have admin privileges.');
         window.location.href = '../../pages/login.php';
@@ -13,15 +12,46 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'Admin') {
 
 include __DIR__ . '/../../includes/db.php';
 
-// Ensure `category` column exists:
-// ALTER TABLE products ADD category VARCHAR(50) DEFAULT '';
-
 $uploadDir = realpath(__DIR__ . '/../../assets/images') . DIRECTORY_SEPARATOR;
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0755, true);
 }
 
 // Handle form submissions
+if (isset($_POST['delete_product'])) {
+    $product_id = $_POST['delete_id'] ?? null;
+
+    if ($product_id) {
+        try {
+            // First, delete related rows in the wishlists table
+            $deleteWishlists = $pdo->prepare("DELETE FROM wishlists WHERE product_id = ?");
+            $deleteWishlists->execute([$product_id]);
+
+            // Then, delete the product image file
+            $old = $pdo->prepare("SELECT image FROM products WHERE id = ?");
+            $old->execute([$product_id]);
+            $oldImage = $old->fetchColumn();
+            if ($oldImage && file_exists($uploadDir . $oldImage)) {
+                unlink($uploadDir . $oldImage);
+            }
+
+            // Finally, delete the product from the products table
+            $deleteProduct = $pdo->prepare("DELETE FROM products WHERE id = ?");
+            $deleteProduct->execute([$product_id]);
+
+            echo "<script>
+                alert('Product and related wishlist entries deleted successfully.');
+                window.location.href = 'admin-dashboard.php';
+            </script>";
+        } catch (PDOException $e) {
+            echo "<p class='text-red-600'>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
+        }
+    } else {
+        echo "<p class='text-red-600'>Invalid product ID.</p>";
+    }
+}
+
+// Other existing logic for adding/editing products remains unchanged
 if (isset($_POST['add_product']) || isset($_POST['edit_product'])) {
     $name        = $_POST['name'];
     $price       = $_POST['price'];
@@ -48,7 +78,7 @@ if (isset($_POST['add_product']) || isset($_POST['edit_product'])) {
     }
 
     if (isset($_POST['add_product'])) {
-        $stmt = $pdo->prepare(
+        $stmt = $pdo->prepare(  
             "INSERT INTO products (name, price, image, description, category)
              VALUES (?, ?, ?, ?, ?)"
         );
@@ -84,19 +114,6 @@ if (isset($_POST['add_product']) || isset($_POST['edit_product'])) {
         );
         $stmt->execute([$name, $price, $imageName, $description, $category, $id]);
     }
-    header('Location: admin-dashboard.php');
-    exit;
-}
-
-if (isset($_POST['delete_product'])) {
-    $id = $_POST['delete_id'];
-    $old = $pdo->prepare("SELECT image FROM products WHERE id = ?");
-    $old->execute([$id]);
-    $oldImage = $old->fetchColumn();
-    if ($oldImage && file_exists($uploadDir . $oldImage)) {
-        unlink($uploadDir . $oldImage);
-    }
-    $pdo->prepare("DELETE FROM products WHERE id = ?")->execute([$id]);
     header('Location: admin-dashboard.php');
     exit;
 }
